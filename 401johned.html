@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Inventory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.14.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --surface2: #f1efe9;
+    --border: #e2dfd6;
+    --border2: #ccc9be;
+    --text: #1a1916;
+    --text2: #6b6860;
+    --text3: #9b9890;
+    --accent: #1a1916;
+    --danger: #c0392b;
+    --danger-bg: #fdf0ef;
+    --warning: #b45309;
+    --warning-bg: #fffbeb;
+    --success: #166534;
+    --success-bg: #f0fdf4;
+    --info: #1e40af;
+    --info-bg: #eff6ff;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141412;
+      --surface: #1e1d1b;
+      --surface2: #282724;
+      --border: #2e2d2a;
+      --border2: #3e3d39;
+      --text: #f0ede6;
+      --text2: #9e9b94;
+      --text3: #6b6860;
+      --accent: #f0ede6;
+      --danger: #f87171;
+      --danger-bg: #2a1515;
+      --warning: #fbbf24;
+      --warning-bg: #1f1a0a;
+      --success: #4ade80;
+      --success-bg: #0a1f12;
+      --info: #93c5fd;
+      --info-bg: #0a1020;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; }
+  body { min-height: 100vh; }
+
+  /* Layout */
+  .app { max-width: 960px; margin: 0 auto; padding: 0 16px 60px; }
+  .topbar { position: sticky; top: 0; z-index: 50; background: var(--bg); border-bottom: 1px solid var(--border); padding: 14px 0; margin: 0 -16px 24px; padding-left: 16px; padding-right: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .logo { width: 34px; height: 34px; background: var(--text); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--bg); font-size: 18px; flex-shrink: 0; }
+  .app-name { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+  .app-sub { font-size: 12px; color: var(--text2); }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 24px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .stat-label { font-size: 11px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+  .stat-val { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+  .stat-val.red { color: var(--danger); }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 2px; margin-bottom: 20px; background: var(--surface2); border-radius: var(--radius); padding: 4px; border: 1px solid var(--border); }
+  .tab { flex: 1; padding: 9px 16px; border: none; background: none; border-radius: var(--radius-sm); font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.15s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; }
+  .card-head { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
+  .card-body { padding: 16px; }
+
+  /* Forms */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
+  .field input, .field select {
+    padding: 9px 12px; border: 1px solid var(--border2); border-radius: var(--radius-sm);
+    background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--text); box-shadow: 0 0 0 3px rgba(0,0,0,0.06); }
+  .field select option { background: var(--surface); color: var(--text); }
+
+  /* Buttons */
+  .btn { padding: 9px 16px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.12s; white-space: nowrap; }
+  .btn:hover { background: var(--surface2); border-color: var(--border2); }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .btn-primary:hover { opacity: 0.84; background: var(--text); }
+  .btn-danger { color: var(--danger); border-color: var(--danger); }
+  .btn-danger:hover { background: var(--danger-bg); }
+  .btn-warning { color: var(--warning); border-color: var(--warning); }
+  .btn-warning:hover { background: var(--warning-bg); }
+  .btn-sm { padding: 6px 10px; font-size: 12px; }
+  .btn-icon { padding: 7px; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--surface2); }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+  .b-amber { background: #fef3c7; color: #92400e; }
+  .b-coral { background: #fee2e2; color: #991b1b; }
+  .b-blue { background: #dbeafe; color: #1e40af; }
+  .b-purple { background: #ede9fe; color: #5b21b6; }
+  .b-teal { background: #d1fae5; color: #065f46; }
+  .b-green { background: #dcfce7; color: #166534; }
+  .b-gray { background: #f3f4f6; color: #374151; }
+  .b-pink { background: #fce7f3; color: #9d174d; }
+  @media (prefers-color-scheme: dark) {
+    .b-amber { background: #2d1e05; color: #fbbf24; }
+    .b-coral { background: #2a0f0f; color: #fca5a5; }
+    .b-blue { background: #0c1a35; color: #93c5fd; }
+    .b-purple { background: #1e1535; color: #c4b5fd; }
+    .b-teal { background: #052018; color: #6ee7b7; }
+    .b-green { background: #052010; color: #86efac; }
+    .b-gray { background: #1f2023; color: #d1d5db; }
+    .b-pink { background: #2a0d1a; color: #f9a8d4; }
+  }
+
+  /* Filter bar */
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 0; flex-wrap: wrap; }
+  .search-box { position: relative; flex: 1; min-width: 160px; }
+  .search-box i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 15px; pointer-events: none; }
+  .search-box input { width: 100%; padding: 8px 12px 8px 32px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; }
+  .search-box input:focus { outline: none; border-color: var(--text); }
+  .filter-bar select { padding: 8px 12px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; }
+  .filter-bar select:focus { outline: none; border-color: var(--text); }
+
+  /* Empty */
+  .empty-state { padding: 40px 20px; text-align: center; color: var(--text3); }
+  .empty-state i { font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.5; }
+  .empty-state p { font-size: 14px; }
+
+  /* Qty indicators */
+  .qty-low { color: var(--danger); font-weight: 600; }
+  .qty-ok { color: var(--success); font-weight: 500; }
+  .qty-warn { color: var(--warning); font-weight: 500; }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px; }
+  .modal-title { font-size: 17px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+  .modal-field { margin-bottom: 12px; }
+  .modal-field label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 5px; }
+  .modal-field input, .modal-field select { width: 100%; padding: 9px 12px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; }
+  .modal-field input:focus, .modal-field select:focus { outline: none; border-color: var(--text); box-shadow: 0 0 0 3px rgba(0,0,0,0.06); }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--bg); padding: 11px 20px; border-radius: 99px; font-size: 13px; font-weight: 500; z-index: 300; opacity: 0; transition: all 0.25s ease; pointer-events: none; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Item name sub */
+  .item-sub { font-size: 11px; color: var(--text3); margin-left: 4px; }
+
+  /* Mobile responsive */
+  @media (max-width: 600px) {
+    .topbar { flex-direction: column; align-items: flex-start; gap: 8px; }
+    th:nth-child(4), td:nth-child(4),
+    th:nth-child(5), td:nth-child(5) { display: none; }
+    .stat-val { font-size: 22px; }
+    .form-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Section head with action */
+  .sec-head { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+
+  /* Low stock alert banner */
+  .alert-banner { background: var(--danger-bg); border: 1px solid var(--danger); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: var(--danger); display: flex; align-items: center; gap: 8px; display: none; }
+  .alert-banner.show { display: flex; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><i class="ti ti-basket"></i></div>
+      <div>
+        <div class="app-name">Home Inventory</div>
+        <div class="app-sub">Groceries &amp; household items</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn btn-sm" onclick="exportData()" title="Export JSON backup"><i class="ti ti-download" style="font-size:14px"></i> Export</button>
+      <label class="btn btn-sm" title="Import JSON backup" style="cursor:pointer"><i class="ti ti-upload" style="font-size:14px"></i> Import<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats" id="stats"></div>
+
+  <!-- Low stock alert -->
+  <div class="alert-banner" id="low-alert">
+    <i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0"></i>
+    <span id="low-alert-text"></span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" id="tab-inv-btn" onclick="switchTab('inv')">
+      <i class="ti ti-list" style="font-size:15px"></i> Inventory
+    </button>
+    <button class="tab" id="tab-master-btn" onclick="switchTab('master')">
+      <i class="ti ti-database" style="font-size:15px"></i> Item Master
+    </button>
+  </div>
+
+  <!-- ===================== INVENTORY TAB ===================== -->
+  <div id="tab-inv">
+
+    <!-- Add form -->
+    <div class="card">
+      <div class="card-head"><i class="ti ti-plus" style="font-size:15px;color:var(--text2)"></i><span class="card-title">Add to inventory</span></div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="field">
+            <label>Item <span style="color:var(--danger)">*</span></label>
+            <select id="f-inv-item">
+              <option value="">Select item...</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Quantity <span style="color:var(--danger)">*</span></label>
+            <input type="number" id="f-inv-qty" placeholder="e.g. 3" min="0" step="0.5">
+          </div>
+          <div class="field">
+            <label>Unit</label>
+            <input type="text" id="f-inv-unit" placeholder="boxes, lbs, cans...">
+          </div>
+          <div class="field">
+            <label>Min stock alert</label>
+            <input type="number" id="f-inv-min" placeholder="e.g. 2" min="0">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addInventory()"><i class="ti ti-plus" style="font-size:14px"></i> Add entry</button>
+      </div>
+    </div>
+
+    <!-- Inventory table -->
+    <div class="card">
+      <div class="sec-head">
+        <div class="filter-bar" style="flex:1">
+          <div class="search-box"><i class="ti ti-search"></i><input type="text" id="s-inv" placeholder="Search inventory..." oninput="renderInv()"></div>
+          <select id="f-inv-type" onchange="renderInv()"><option value="">All types</option></select>
+          <select id="f-inv-stock" onchange="renderInv()">
+            <option value="">All stock</option>
+            <option value="low">Low / out</option>
+            <option value="ok">In stock</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:110px">Type</th>
+              <th>Item</th>
+              <th style="width:90px">Qty</th>
+              <th style="width:80px">Unit</th>
+              <th style="width:80px">Updated</th>
+              <th style="width:100px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="inv-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===================== ITEM MASTER TAB ===================== -->
+  <div id="tab-master" style="display:none">
+
+    <!-- Add form -->
+    <div class="card">
+      <div class="card-head"><i class="ti ti-plus" style="font-size:15px;color:var(--text2)"></i><span class="card-title">Add item to master list</span></div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="field">
+            <label>Item name <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="f-item-name" placeholder="e.g. Olive Oil">
+          </div>
+          <div class="field">
+            <label>Item type <span style="color:var(--danger)">*</span></label>
+            <select id="f-item-type">
+              <option value="">Select type...</option>
+              <option>Pantry</option><option>Canned Goods</option><option>Beverages</option>
+              <option>Snacks</option><option>Cleaning</option><option>Personal Care</option>
+              <option>Paper Goods</option><option>Frozen</option><option>Dairy</option>
+              <option>Produce</option><option>Meat &amp; Seafood</option><option>Bakery</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Brand</label>
+            <input type="text" id="f-item-brand" placeholder="e.g. Kirkland">
+          </div>
+          <div class="field">
+            <label>Notes</label>
+            <input type="text" id="f-item-notes" placeholder="e.g. Organic preferred">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addItem()"><i class="ti ti-plus" style="font-size:14px"></i> Add item</button>
+      </div>
+    </div>
+
+    <!-- Master table -->
+    <div class="card">
+      <div class="sec-head">
+        <div class="filter-bar" style="flex:1">
+          <div class="search-box"><i class="ti ti-search"></i><input type="text" id="s-master" placeholder="Search items..." oninput="renderMaster()"></div>
+          <select id="f-master-type" onchange="renderMaster()"><option value="">All types</option></select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:110px">Type</th>
+              <th>Item name</th>
+              <th style="width:120px">Brand</th>
+              <th style="width:160px">Notes</th>
+              <th style="width:100px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="master-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" id="modal-box"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ---- DB ----
+const STORAGE_KEY = 'home-inventory-v1';
+let db = { items: [], inventory: [] };
+
+const TYPE_BADGE = {
+  'Pantry':'b-amber','Canned Goods':'b-coral','Beverages':'b-blue','Snacks':'b-purple',
+  'Cleaning':'b-teal','Personal Care':'b-pink','Paper Goods':'b-blue','Frozen':'b-blue',
+  'Dairy':'b-green','Produce':'b-green','Meat & Seafood':'b-coral','Bakery':'b-amber','Other':'b-gray'
+};
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function fmtDate(d){ return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }
+
+function load(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) db = JSON.parse(raw);
+    if(!db.items) db.items=[];
+    if(!db.inventory) db.inventory=[];
+  } catch(e){ db={items:[],inventory:[]}; }
+  if(db.items.length===0) seed();
+  render();
+}
+
+function seed(){
+  db.items = [
+    {id:'i1',name:'Olive Oil',type:'Pantry',brand:'Kirkland',notes:'Extra virgin'},
+    {id:'i2',name:'Rice',type:'Pantry',brand:'',notes:'Long grain'},
+    {id:'i3',name:'Pasta',type:'Pantry',brand:'Barilla',notes:''},
+    {id:'i4',name:'Chicken Broth',type:'Canned Goods',brand:'Swanson',notes:'Low sodium'},
+    {id:'i5',name:'Paper Towels',type:'Paper Goods',brand:'Bounty',notes:''},
+    {id:'i6',name:'Dish Soap',type:'Cleaning',brand:'Dawn',notes:''},
+    {id:'i7',name:'Orange Juice',type:'Beverages',brand:'Tropicana',notes:'No pulp'},
+    {id:'i8',name:'Granola Bars',type:'Snacks',brand:'Kind',notes:''},
+    {id:'i9',name:'Canned Tomatoes',type:'Canned Goods',brand:'Hunt\'s',notes:'Crushed'},
+    {id:'i10',name:'Laundry Detergent',type:'Cleaning',brand:'Tide',notes:''},
+  ];
+  db.inventory = [
+    {id:'v1',itemId:'i1',qty:2,unit:'bottles',min:1,updated:Date.now()},
+    {id:'v2',itemId:'i2',qty:5,unit:'lbs',min:2,updated:Date.now()},
+    {id:'v3',itemId:'i3',qty:1,unit:'boxes',min:2,updated:Date.now()},
+    {id:'v4',itemId:'i4',qty:6,unit:'cans',min:3,updated:Date.now()},
+    {id:'v5',itemId:'i5',qty:2,unit:'rolls',min:2,updated:Date.now()},
+    {id:'v6',itemId:'i6',qty:1,unit:'bottle',min:1,updated:Date.now()},
+    {id:'v7',itemId:'i9',qty:4,unit:'cans',min:3,updated:Date.now()},
+    {id:'v8',itemId:'i10',qty:1,unit:'jug',min:1,updated:Date.now()},
+  ];
+  save();
+}
+
+// ---- UI helpers ----
+let toastTimer;
+function toast(msg, icon='ti-check'){
+  clearTimeout(toastTimer);
+  const t=document.getElementById('toast');
+  t.innerHTML=`<i class="ti ${icon}" style="font-size:14px"></i>${msg}`;
+  t.classList.add('show');
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+function openModal(html){ document.getElementById('modal-box').innerHTML=html; document.getElementById('modal').classList.add('open'); }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+function switchTab(tab){
+  document.getElementById('tab-inv').style.display=tab==='inv'?'':'none';
+  document.getElementById('tab-master').style.display=tab==='master'?'':'none';
+  document.getElementById('tab-inv-btn').classList.toggle('active',tab==='inv');
+  document.getElementById('tab-master-btn').classList.toggle('active',tab==='master');
+}
+
+function getItem(id){ return db.items.find(x=>x.id===id)||null; }
+
+// ---- Stats ----
+function renderStats(){
+  const totalEntries=db.inventory.length;
+  const totalUnits=db.inventory.reduce((s,x)=>s+Number(x.qty),0);
+  const lowItems=db.inventory.filter(x=>Number(x.qty)<=(x.min||2));
+  const types=[...new Set(db.items.map(x=>x.type))].length;
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><div class="stat-label"><i class="ti ti-list"></i> Tracked items</div><div class="stat-val">${totalEntries}</div></div>
+    <div class="stat"><div class="stat-label"><i class="ti ti-stack"></i> Total units</div><div class="stat-val">${Math.round(totalUnits*10)/10}</div></div>
+    <div class="stat"><div class="stat-label"><i class="ti ti-alert-triangle"></i> Low / out</div><div class="stat-val ${lowItems.length>0?'red':''}">${lowItems.length}</div></div>
+    <div class="stat"><div class="stat-label"><i class="ti ti-tag"></i> Categories</div><div class="stat-val">${types}</div></div>
+    <div class="stat"><div class="stat-label"><i class="ti ti-database"></i> Master list</div><div class="stat-val">${db.items.length}</div></div>
+  `;
+  const banner=document.getElementById('low-alert');
+  if(lowItems.length>0){
+    const names=lowItems.map(x=>{const it=getItem(x.itemId);return it?it.name:'?';}).slice(0,4).join(', ');
+    document.getElementById('low-alert-text').textContent=`Low stock: ${names}${lowItems.length>4?' +more':''}`;
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+// ---- Type filters ----
+function populateFilters(){
+  const types=[...new Set(db.items.map(x=>x.type))].sort();
+  const toOpts=(cur)=>'<option value="">All types</option>'+types.map(t=>`<option${cur===t?' selected':''}>${t}</option>`).join('');
+  const curInv=document.getElementById('f-inv-type').value;
+  const curMas=document.getElementById('f-master-type').value;
+  document.getElementById('f-inv-type').innerHTML=toOpts(curInv);
+  document.getElementById('f-master-type').innerHTML=toOpts(curMas);
+  const sel=document.getElementById('f-inv-item');
+  const cur=sel.value;
+  const inInventory=new Set(db.inventory.map(x=>x.itemId));
+  const available=db.items.filter(x=>!inInventory.has(x.id)).sort((a,b)=>a.name.localeCompare(b.name));
+  sel.innerHTML='<option value="">Select item...</option>'+available.map(it=>`<option value="${it.id}"${cur===it.id?' selected':''}>${it.name} — ${it.type}</option>`).join('');
+}
+
+// ---- Render inventory ----
+function renderInv(){
+  const q=(document.getElementById('s-inv').value||'').toLowerCase();
+  const ft=document.getElementById('f-inv-type').value;
+  const fs=document.getElementById('f-inv-stock').value;
+  let rows=db.inventory.map(inv=>{
+    const it=getItem(inv.itemId);
+    return it?{...inv,_n:it.name,_t:it.type,_b:it.brand}:null;
+  }).filter(Boolean);
+  if(q) rows=rows.filter(r=>r._n.toLowerCase().includes(q)||(r._b||'').toLowerCase().includes(q));
+  if(ft) rows=rows.filter(r=>r._t===ft);
+  if(fs==='low') rows=rows.filter(r=>Number(r.qty)<=(r.min||2));
+  if(fs==='ok') rows=rows.filter(r=>Number(r.qty)>(r.min||2));
+  rows.sort((a,b)=>a._t.localeCompare(b._t)||a._n.localeCompare(b._n));
+  const tbody=document.getElementById('inv-tbody');
+  if(!rows.length){
+    tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><i class="ti ti-basket-off"></i><p>No entries found</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML=rows.map(r=>{
+    const isLow=Number(r.qty)<=(r.min||2);
+    const isOut=Number(r.qty)===0;
+    const qClass=isOut?'qty-low':isLow?'qty-warn':'qty-ok';
+    const qIcon=isOut?'<i class="ti ti-circle-x" style="font-size:13px;margin-left:4px" title="Out of stock"></i>':isLow?'<i class="ti ti-alert-triangle" style="font-size:12px;margin-left:4px" title="Low stock"></i>':'';
+    return `<tr>
+      <td><span class="badge ${TYPE_BADGE[r._t]||'b-gray'}">${r._t}</span></td>
+      <td>${r._n}${r._b?`<span class="item-sub">${r._b}</span>`:''}</td>
+      <td class="${qClass}">${r.qty}${qIcon}</td>
+      <td>${r.unit||'—'}</td>
+      <td style="font-size:12px;color:var(--text2)">${fmtDate(r.updated)}</td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-warning btn-icon" onclick="editInv('${r.id}')" title="Edit"><i class="ti ti-edit" style="font-size:14px"></i></button>
+        <button class="btn btn-sm btn-danger btn-icon" onclick="delInv('${r.id}')" title="Remove"><i class="ti ti-trash" style="font-size:14px"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ---- Render master ----
+function renderMaster(){
+  const q=(document.getElementById('s-master').value||'').toLowerCase();
+  const ft=document.getElementById('f-master-type').value;
+  let rows=[...db.items];
+  if(q) rows=rows.filter(r=>r.name.toLowerCase().includes(q)||(r.brand||'').toLowerCase().includes(q));
+  if(ft) rows=rows.filter(r=>r.type===ft);
+  rows.sort((a,b)=>a.type.localeCompare(b.type)||a.name.localeCompare(b.name));
+  const tbody=document.getElementById('master-tbody');
+  if(!rows.length){
+    tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><i class="ti ti-database-off"></i><p>No items found</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML=rows.map(r=>`<tr>
+    <td><span class="badge ${TYPE_BADGE[r.type]||'b-gray'}">${r.type}</span></td>
+    <td>${r.name}</td>
+    <td>${r.brand||'<span style="color:var(--text3)">—</span>'}</td>
+    <td style="font-size:13px;color:var(--text2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.notes||''}">${r.notes||'<span style="color:var(--text3)">—</span>'}</td>
+    <td style="display:flex;gap:4px">
+      <button class="btn btn-sm btn-warning btn-icon" onclick="editItem('${r.id}')" title="Edit"><i class="ti ti-edit" style="font-size:14px"></i></button>
+      <button class="btn btn-sm btn-danger btn-icon" onclick="delItem('${r.id}')" title="Delete"><i class="ti ti-trash" style="font-size:14px"></i></button>
+    </td>
+  </tr>`).join('');
+}
+
+function render(){ renderStats(); populateFilters(); renderInv(); renderMaster(); }
+
+// ---- Add inventory ----
+function addInventory(){
+  const itemId=document.getElementById('f-inv-item').value;
+  const qty=document.getElementById('f-inv-qty').value;
+  const unit=document.getElementById('f-inv-unit').value.trim();
+  const min=document.getElementById('f-inv-min').value;
+  if(!itemId||qty==='') return toast('Select an item and enter quantity','ti-alert-circle');
+  if(db.inventory.find(x=>x.itemId===itemId)) return toast('Already in inventory — use Edit to update','ti-alert-circle');
+  db.inventory.push({id:uid(),itemId,qty:Number(qty),unit,min:min?Number(min):2,updated:Date.now()});
+  save(); render();
+  document.getElementById('f-inv-item').value='';
+  document.getElementById('f-inv-qty').value='';
+  document.getElementById('f-inv-unit').value='';
+  document.getElementById('f-inv-min').value='';
+  toast('Inventory entry added');
+}
+
+// ---- Add item ----
+function addItem(){
+  const name=document.getElementById('f-item-name').value.trim();
+  const type=document.getElementById('f-item-type').value;
+  const brand=document.getElementById('f-item-brand').value.trim();
+  const notes=document.getElementById('f-item-notes').value.trim();
+  if(!name||!type) return toast('Name and type are required','ti-alert-circle');
+  if(db.items.find(x=>x.name.toLowerCase()===name.toLowerCase())) return toast('Item already exists','ti-alert-circle');
+  db.items.push({id:uid(),name,type,brand,notes});
+  save(); render();
+  ['f-item-name','f-item-brand','f-item-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-item-type').value='';
+  toast('Item added to master list');
+}
+
+// ---- Edit inventory ----
+function editInv(id){
+  const inv=db.inventory.find(x=>x.id===id);
+  const it=getItem(inv.itemId);
+  openModal(`
+    <div class="modal-title"><i class="ti ti-edit" style="font-size:16px"></i> Update: ${it.name}</div>
+    <div class="modal-field"><label>Quantity</label><input type="number" id="m-qty" value="${inv.qty}" min="0" step="0.5"></div>
+    <div class="modal-field"><label>Unit</label><input type="text" id="m-unit" value="${inv.unit||''}"></div>
+    <div class="modal-field"><label>Min stock alert level</label><input type="number" id="m-min" value="${inv.min||2}" min="0"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveInv('${id}')"><i class="ti ti-check" style="font-size:13px"></i> Save</button>
+    </div>`);
+}
+
+function saveInv(id){
+  const inv=db.inventory.find(x=>x.id===id);
+  inv.qty=Number(document.getElementById('m-qty').value);
+  inv.unit=document.getElementById('m-unit').value.trim();
+  inv.min=Number(document.getElementById('m-min').value)||2;
+  inv.updated=Date.now();
+  closeModal(); save(); render(); toast('Inventory updated');
+}
+
+// ---- Delete inventory ----
+function delInv(id){
+  const it=getItem(db.inventory.find(x=>x.id===id).itemId);
+  openModal(`
+    <div class="modal-title"><i class="ti ti-trash" style="font-size:16px;color:var(--danger)"></i> Remove from inventory</div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:4px">Remove <strong>${it.name}</strong> from inventory?</p>
+    <p style="font-size:12px;color:var(--text3)">The item stays in your master list.</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelInv('${id}')"><i class="ti ti-trash" style="font-size:13px"></i> Remove</button>
+    </div>`);
+}
+function confirmDelInv(id){ db.inventory=db.inventory.filter(x=>x.id!==id); closeModal(); save(); render(); toast('Removed from inventory'); }
+
+// ---- Edit item ----
+function editItem(id){
+  const it=db.items.find(x=>x.id===id);
+  const types=['Pantry','Canned Goods','Beverages','Snacks','Cleaning','Personal Care','Paper Goods','Frozen','Dairy','Produce','Meat & Seafood','Bakery','Other'];
+  openModal(`
+    <div class="modal-title"><i class="ti ti-edit" style="font-size:16px"></i> Edit item</div>
+    <div class="modal-field"><label>Item name</label><input type="text" id="mi-name" value="${it.name}"></div>
+    <div class="modal-field"><label>Item type</label><select id="mi-type">${types.map(t=>`<option${t===it.type?' selected':''}>${t}</option>`).join('')}</select></div>
+    <div class="modal-field"><label>Brand</label><input type="text" id="mi-brand" value="${it.brand||''}"></div>
+    <div class="modal-field"><label>Notes</label><input type="text" id="mi-notes" value="${it.notes||''}"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveItem('${id}')"><i class="ti ti-check" style="font-size:13px"></i> Save</button>
+    </div>`);
+}
+function saveItem(id){
+  const it=db.items.find(x=>x.id===id);
+  it.name=document.getElementById('mi-name').value.trim();
+  it.type=document.getElementById('mi-type').value;
+  it.brand=document.getElementById('mi-brand').value.trim();
+  it.notes=document.getElementById('mi-notes').value.trim();
+  closeModal(); save(); render(); toast('Item updated');
+}
+
+// ---- Delete item ----
+function delItem(id){
+  const it=db.items.find(x=>x.id===id);
+  const inUse=db.inventory.find(x=>x.itemId===id);
+  openModal(`
+    <div class="modal-title"><i class="ti ti-trash" style="font-size:16px;color:var(--danger)"></i> Delete item</div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:4px">Delete <strong>${it.name}</strong> from the master list?</p>
+    ${inUse?'<p style="font-size:12px;color:var(--danger)"><i class="ti ti-alert-triangle" style="font-size:12px"></i> This will also remove its inventory entry.</p>':''}
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelItem('${id}')"><i class="ti ti-trash" style="font-size:13px"></i> Delete</button>
+    </div>`);
+}
+function confirmDelItem(id){
+  db.items=db.items.filter(x=>x.id!==id);
+  db.inventory=db.inventory.filter(x=>x.itemId!==id);
+  closeModal(); save(); render(); toast('Item deleted');
+}
+
+// ---- Export / Import ----
+function exportData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='home-inventory-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  toast('Data exported');
+}
+function importData(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try {
+      const parsed=JSON.parse(ev.target.result);
+      if(!parsed.items||!parsed.inventory) throw new Error('Invalid format');
+      db=parsed; save(); render(); toast('Data imported successfully');
+    } catch(err){ toast('Invalid file format','ti-alert-circle'); }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+// ---- Init ----
+load();
+</script>
+</body>
+</html>
